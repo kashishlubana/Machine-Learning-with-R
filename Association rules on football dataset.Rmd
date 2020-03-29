@@ -1,0 +1,52 @@
+---
+title: "Football_association_rule"
+author: "Kashish"
+date: "14 December 2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r football}
+library("arules")
+
+football = read.csv("D:/BDBA/Analytics-III/Data/Data_A3/football.csv")
+
+# convert to transaction class
+football = as(football,"transactions")
+
+# apriori rules
+rules <- apriori(football, parameter = list(supp = 0.38, conf = 0.8, target = "rules"))
+summary(rules)
+inspect(head(rules, by = "lift"))
+
+```
+
+```{r}
+library(arulesViz)
+
+plot(rules)
+
+plot(head(sort(rules, by = "lift"), n=25), method = "graph", control=list(cex=.8))
+
+```
+
+
+```{r}
+dis <- dissimilarity(football, method = "phi", which = "items")
+plot(hclust(dis, method="complete"), cex=.5)
+
+```
+
+```{r}
+
+# apriori frequent, compute itemsets upto 3
+itemsets = apriori(football, parameter = list(supp = 0.01,minlen =2,maxlen=3, target = "frequent"))
+summary(itemsets)
+inspect(head(itemsets,n=10))
+plot(head(itemsets,n=30), method = "graph")
+
+```
+

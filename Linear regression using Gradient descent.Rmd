@@ -1,0 +1,63 @@
+---
+title: "LR using Gradient Descent"
+author: "Kashish"
+date: "12/14/2019"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+data = read.csv("G:/Semester 3/Analytics 3/data/data.csv", sep=",")
+summary(data)
+```
+
+```{r}
+linearmodel = lm(Y~ X, data = data)
+summary(linearmodel)
+coef(linearmodel)
+```
+
+```{r}
+# Building the model
+m = 0
+c = 0
+
+L = 0.0001  # The learning Rate
+epochs = 1000  # The number of iterations to perform gradient descent
+
+n = length(data$X) # Number of elements in X
+
+
+for (i in 1:epochs){
+Y_pred = m*data$X + c  # The current predicted value of Y
+D_m = (-2/n) * sum(data$X * (data$Y - Y_pred))  # Derivative wrt m
+D_c = (-2/n) * sum(data$Y - Y_pred)  # Derivative wrt c
+m = m - L * D_m  # Update m
+c = c - L * D_c  # Update c
+}
+print (m)
+print(c)
+```
+
+```{r}
+# Making predictions
+Y_pred = m*data$X + c
+
+plot(data, pch = 16, col = "black" )
+
+abline(linearmodel, col="blue") # Using lm
+abline(c,m, col="red") # using GD
+
+```
+
+```{r}
+#compute rnse
+
+res = Y -(m +c*data$X)
+
+
+```
+

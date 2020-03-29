@@ -1,0 +1,131 @@
+---
+title: "Heptathlon_PCA"
+author: "Kashish"
+date: "13 December 2019"
+output: html_documentä
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r cars}
+heptathlon = read.csv("./datasets/heptathlon.csv")
+
+heptathlon$hurdles <- max(heptathlon$hurdles) - heptathlon$hurdles
+heptathlon$run200m <- max(heptathlon$run200m) - heptathlon$run200m
+heptathlon$run800m <- max(heptathlon$run800m) - heptathlon$run800m
+
+# correlation matrix excluding score
+cm <- cor(heptathlon[,-8])
+round(cm, 2)
+
+# Calculate PCA
+pca <- prcomp(heptathlon[,-8], scale = TRUE)
+
+# summary
+summary(pca)
+```
+
+## Including Plots
+
+You can also embed plots, for example:
+
+```{r cor, echo=FALSE}
+library(corrplot)
+
+# correlation plot
+corrplot(cm, is.corr=FALSE)
+
+# pca plot
+plot(pca)
+
+```
+```{r echo = FALSE}
+
+library(factoextra)
+## Loading required package: factoextra
+## Loading required package: ggplot2
+## Welcome! Want to learn more? See two factoextra-related books at https://goo.gl/ve3WBa
+fviz_eig(pca, addlabels = TRUE, choice="eigenvalue")
+
+```
+```{r}
+# biplots
+biplot(pca, xpd=TRUE)
+
+
+fviz_pca_var(pca, col.var = "black")
+```
+
+```{r echo=FALSE}
+str(pca)
+
+plot(rowSums(heptathlon), pca$x[,1])
+```
+
+```{r}
+var <- get_pca_var(pca)
+var
+```
+```{r barplot, echo=FALSE}
+fviz_cos2(pca, choice = "var", axes = 1:2)
+
+# Color by cos2 values: quality on the factor map
+fviz_pca_var(pca, col.var = "cos2",
+gradient.cols = c("#00AFBB", "#E7B800", "#FC4E07"),
+repel = TRUE # Avoid text overlapping, not necessary here
+)
+
+```
+
+```{r linear_model_all,echo=FALSE}
+library(caTools)
+set.seed(123)
+split = sample.split(heptathlon$score, SplitRatio = 0.8)
+training_set = subset(heptathlon, split == TRUE)
+test_set = subset(heptathlon, split == FALSE)
+
+# Fitting Simple Linear Regression to the Training set
+linearMod <- lm(score ~ ., data=training_set)  # build linear regression model on full data
+print(linearMod)
+summary(linearMod) 
+
+# Predicting the Test set results
+y_pred = predict(linearMod, newdata = test_set)
+y_pred
+
+modelSummary <- summary(linearMod)  # capture model summary as an object
+modelSummary
+
+x  <- seq(1, 5, 1)
+plot(x, y_pred, type = "l", col = "red")
+lines(x, test_set$score,col="green")
+```
+```{r linear_model_pca,echo=FALSE}
+# Fitting Simple Linear Regression to the Training set
+
+# pca_train_split = subset(pca$x[,1], split == TRUE)
+
+# View(pca_train_split)
+
+linearMod <- lm(heptathlon$score ~ pca$x[,1:2])  # build linear regression model on full data
+print(linearMod)
+summary(linearMod) 
+
+# Predicting the Test set results
+y_pred = predict(linearMod, newdata = test_set)
+
+x  <- seq(1, 5, 1)
+plot(x, y_pred, type = "l", col = "red")
+lines(x, test_set$score,col="green")
+plot(x, test_set$score, type = "l", col = "green")
+
+modelSummary <- summary(linearMod)  # capture model summary as an object
+modelSummary
+```
+
+```{r}
+pca$x[,1]
+```
+

@@ -1,0 +1,61 @@
+
+```{r}
+
+library(ggplot2)
+
+DietDataset <- read.csv("C:/Users/Kashish/Desktop/R/DietDataset.csv")
+
+
+diet<- na.omit(DietDataset) # Removed 2 na values from the data and stored in diet dataset
+
+boxplot(diet$Height)
+boxplot(diet$weight6weeks)
+
+
+ 
+View(diet)
+
+ins.aov <- aov(Age ~ Height, data = diet)
+
+summary(ins.aov)
+
+
+
+
+diet$weight_loss = diet$pre.weight - diet$weight6weeks 
+
+boxplot(weight_loss~Diet,data=diet,col="light gray",
+        ylab = "Weight loss (kg)", xlab = "Diet type")
+abline(h=0,col="blue")
+View(diet)
+
+anova<-aov(weight_loss~Diet, data = diet)
+summary(anova)
+class(anova)
+
+
+
+```
+
+
+
+
+We can interpret the data by using the above result 
+
+As we can see that pr(>F) is very less and less than 0.05 we can say that diet has a significant effect on weight loss and also the F value is high
+
+For 74 observation it was not calculated
+```{r}
+str(diet)
+diet$weight_loss = as.factor(diet$weight_loss)
+
+diet$Diet = as.factor(diet$Diet)
+
+
+
+str(diet)
+TukeyHSD(anova,conf.level = 0.95)
+
+```
+
+
